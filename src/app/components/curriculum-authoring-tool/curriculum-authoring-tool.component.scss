@@ -1,0 +1,71 @@
+@import '../../../styles.scss';
+// .input-root {
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-between;
+// }
+.input-wrapper {
+  display: flex;
+  border-bottom: 1px solid $borderColor;
+}
+.action-buttons-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  // width: 15%;
+  max-width: 120px;
+  fa-icon {
+    font-size: 22px;
+  }
+  min-width: 40px;
+}
+.action-button {
+  cursor: pointer;
+  color:  $iconColor;
+  &:hover {
+    color: $iconHoverColor;
+  }
+
+}
+.move {
+  cursor: move;
+}
+.action-button-wrapper {
+  display: flex;
+  max-width: 34px;
+  min-width: 15px;
+  max-height: 28px;
+  min-height: 14px;
+}
+.action-button-style {
+  background: none;
+  border: none;
+  &:focus {
+    outline: none;
+  }
+}
+// .action-button {
+//   cursor: pointer;
+// }
+
+.input-text-wrapper {
+  flex-grow: 1;
+}
+.input-text {
+  width: 100%;
+  height: 30px;
+  border: none;
+  // border-color: gray;
+  // border-left: none;
+  // border-right: none;
+  // border-top: none;
+  margin-left: 10px;
+  &:focus{
+    outline: none;
+  }
+}
+.move-tooltip{
+  width: 10px;
+  height: 10px;
+}

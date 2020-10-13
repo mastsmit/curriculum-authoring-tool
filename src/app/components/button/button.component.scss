@@ -1,0 +1,15 @@
+@import '../../../styles.scss';
+.button-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  margin: 1vh 0;
+  color: $buttonTextColor;
+  background-color: $buttonBackgroundColor;
+  height: 4vh;
+  max-height: 30px;
+}
+.button-icon {
+  margin-right: 6px;
+}

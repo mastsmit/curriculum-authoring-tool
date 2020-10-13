@@ -1,0 +1,95 @@
+<div>
+  curriculum-authoring-tool works!
+
+  <!-- <div cdkDrag>
+      drag me around..
+    </div> -->
+  <!-- <div cdkDropList (cdkDropListDropped) = "drop($event)">
+      <div *ngFor="let fake of fakeList" cdkDrag>
+          {{fake}}
+      </div>
+    </div> -->
+  <ng-template #templateRef let-node let-level="level">
+    <div
+      class="input-root" cdkDropList [cdkDropListData]= "curriculumObject" (cdkDropListDropped) = "drop($event)">
+      <div class="input-wrapper" [class]="node.id" cdkDragBoundary=".root" cdkDragLockAxis="y" cdkDrag [cdkDragData]= "node">
+        <div
+          class="action-buttons-box">
+          <div class="action-button-wrapper" matTooltip="Move"
+            matTooltipPosition="above" matTooltipClass="move-tooltip"
+            cdkDragHandle>
+            <button class="action-button-style">
+              <fa-icon [icon]="faArrowsAltIcon" class="move action-button"
+                (click)="checking(node)"></fa-icon>
+            </button>
+          </div>
+          <div class="action-button-wrapper" matTooltip="UnIndent"
+            matTooltipPosition="above">
+            <button class="action-button-style">
+              <fa-icon [icon]="faArrowLeftIcon" class="un-indent action-button"
+                (click)="handleUnIndent(node)"></fa-icon>
+            </button>
+          </div>
+          <div class="action-button-wrapper" matTooltip="Indent"
+            matTooltipPosition="above">
+            <button class="action-button-style">
+              <fa-icon [icon]="faArrowRightIcon" class="indent action-button"
+                (click)="handleIndent(node)"></fa-icon>
+            </button>
+          </div>
+          <div class="action-button-wrapper" matTooltip="Delete"
+            matTooltipPosition="above">
+            <button class="action-button-style">
+              <fa-icon [icon]="faArrowTrashAltIcon" class="delete action-button"
+                (click)="handleDelete(node)"></fa-icon>
+            </button>
+          </div>
+        </div>
+        <div class="input-text-wrapper" >
+          <input
+            type="text"
+            [style]="styles[level]"
+            class="input-text"
+            [(ngModel)]="node.name"
+            [style.padding-left]="level * 35 + 'px'"
+            >
+        </div>
+      </div>
+    </div>
+    <div *ngIf="node.children">
+
+
+      <div *ngFor="let item of node.children">
+        <ng-template
+          [ngTemplateOutlet]="templateRef"
+          [ngTemplateOutletContext]="{$implicit: item, level: level + 1 }">
+        </ng-template>
+
+      </div>
+      <!-- <ng-template
+        ngFor
+        [ngForOf]="node.children"
+        [ngForTemplate]="templateRef">
+      </ng-template> -->
+    </div>
+  </ng-template>
+  <div class="root">
+    <div *ngFor="let item of curriculumObject.children">
+      <ng-template
+        [ngTemplateOutlet]="templateRef"
+        [ngTemplateOutletContext]="{$implicit: item, level:0 }">
+      </ng-template>
+
+    </div>
+  </div>
+  <app-button buttonName= 'Add course' [buttonStyle]= buttonStyle [onClick]=
+    addCourse>
+  </app-button>
+  <a class="btn btn-clear" title="Download JSON" [href]="downloadJsonHref" download="download.json" (click)="generateDownloadJsonUri()">downloadJson</a>
+  <input
+  style="display: none"
+  type="file" (change)="onFileChanged($event)"
+  #fileInput>
+<button (click)="fileInput.click()">Select File</button>
+<!-- <button (click)="onUpload()">Upload!</button> -->
+</div>
