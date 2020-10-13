@@ -69,3 +69,23 @@
   width: 10px;
   height: 10px;
 }
+.load-and-save-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0px;
+}
+.save-json-button {
+  border: 1px solid black;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 1px 6px;
+  margin-right: 10px;
+  background-color: #E5E5E5;
+}
+.load-json-button {
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+}
