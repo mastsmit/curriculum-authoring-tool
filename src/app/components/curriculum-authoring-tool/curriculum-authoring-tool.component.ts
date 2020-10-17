@@ -18,7 +18,7 @@ type CurriculumObject = {
 };
 
 type IdToParentMap = {
-  [key: string]: CurriculumObject | null;
+  [key: string]: string | null;
 };
 
 @Component({
@@ -28,6 +28,7 @@ type IdToParentMap = {
 })
 export class CurriculumAuthoringToolComponent implements OnInit {
   button = 1;
+  searchedParent = null;
   curriculumObject: CurriculumObject = {
     id: uuid(),
     name: 'curriculumRoot',
@@ -104,6 +105,31 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     };
   }
 
+  searchInNode = (node: CurriculumObject, key) => {
+    console.log('--------------', node.id, key)
+
+    if(node.id === key) {
+      this.searchedParent = node;
+      console.log('--------------', node)
+      return true;
+    }
+    let child = null;
+    for (child of node.children) {
+      if (this.searchInNode(child, key)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getIdVsParentSubOptimal = (key): CurriculumObject => {
+    this.searchedParent = null;
+    console.log('-------', this.curriculumObject, key)
+    this.searchInNode(this.curriculumObject, this.idToParentMap[key])
+    console.log('searchedNode-------', this.searchedParent)
+    return this.searchedParent
+  }
+
   idToParentSync = (list) => {
     console.log('obj', JSON.stringify(list, null, 3));
     if (list === []) {
@@ -141,7 +167,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     text?: string
   ): CurriculumObject => {
     const id = uuid();
-    this.idToParentMap[id] = parent;
+    this.idToParentMap[id] = parent.id;
     return {
       name: text,
       id,
@@ -158,7 +184,8 @@ export class CurriculumAuthoringToolComponent implements OnInit {
       '\n obj first time ',
       JSON.stringify(this.curriculumObject, null, 3)
     );
-    const oldParent = this.idToParentMap[node.id];
+    const oldParent = this.getIdVsParentSubOptimal(node.id)
+    // const oldParent = this.idToParentMap[node.id];
 
     const tempCourseList = oldParent.children;
     console.log(
@@ -185,7 +212,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
 
     tempCourseList[courseIndex - 1].children.push(tempCourseList[courseIndex]);
-    this.idToParentMap[node.id] = tempCourseList[courseIndex - 1];
+    this.idToParentMap[node.id] = tempCourseList[courseIndex - 1].id;
     console.log(
       '---------id 3 rd, oldParent 3rd , courseIndex 3rd , tempParentList 3rd',
       node.id,
@@ -212,9 +239,13 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   handleUnIndent = (node) => {
     let tempList: [];
     let grandParent;
-    let oldParent = this.idToParentMap[node.id];
+    let oldParent = this.getIdVsParentSubOptimal(node.id)
+
+    // let oldParent = this.idToParentMap[node.id];
     if (oldParent) {
-      grandParent = this.idToParentMap[oldParent.id];
+      grandParent = this.getIdVsParentSubOptimal(oldParent.id)
+
+      // grandParent = this.idToParentMap[oldParent.id];
     }
     if (!grandParent) {
       return;
@@ -231,7 +262,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
         node,
         ...grandParent.children.slice(oldParentIndex + 1),
       ];
-      this.idToParentMap[node.id] = grandParent;
+      this.idToParentMap[node.id] = grandParent.id;
     }
     console.log(
       'curriculumObj',
@@ -242,8 +273,10 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   };
 
   handleDelete = (node: CurriculumObject) => {
-    let oldParent: CurriculumObject = this.idToParentMap[node.id];
-    if (this.idToParentMap[node.id].id === this.curriculumObject.id) {
+    let oldParent: CurriculumObject = this.getIdVsParentSubOptimal(node.id)
+
+    // let oldParent: CurriculumObject = this.idToParentMap[node.id];
+    if (this.idToParentMap[node.id] === this.curriculumObject.id) {
       oldParent = this.curriculumObject;
     }
     if (oldParent) {
