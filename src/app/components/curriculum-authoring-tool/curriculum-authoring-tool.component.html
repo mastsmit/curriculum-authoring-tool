@@ -11,7 +11,7 @@
     <div
       class="input-root" cdkDropList [cdkDropListData]="curriculumObject"
       (cdkDropListDropped)="drop($event)">
-      <div class="input-wrapper" [class]="node.id" cdkDragBoundary=".root"
+      <div class="input-wrapper" cdkDragBoundary=".root"
         cdkDragLockAxis="y" cdkDrag [cdkDragData]="node">
         <div
           class="action-buttons-box">
@@ -92,9 +92,6 @@
       type="file" (change)="onFileChanged($event)"
       #fileInput>
     <button class="load-json-button" (click)="fileInput.click()">Load</button>
-  </div>
-  <div *ngIf="!isJsonLoadSuccessfully">
-    {{errorMessageForJsonLoadFailed}}
   </div>
   <!-- <button (click)="onUpload()">Upload!</button> -->
 </div>

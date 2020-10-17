@@ -1,9 +1,9 @@
-import { JsonPipe } from '@angular/common';
+import { DialogComponent } from './../dialog/dialog.component';
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MatDialog } from '@angular/material/dialog';
 
 import {
-  faPlusCircle,
   faArrowLeft,
   faArrowRight,
   faTrashAlt,
@@ -47,8 +47,6 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   ];
   currentRef = this.curriculumObject.children;
   downloadJsonHref: SafeUrl;
-  isJsonLoadSuccessfully = true;
-  errorMessageForJsonLoadFailed = '';
   selectedFile;
   fakeObj = [
     { child: [{ id: 1 }], id: 1 },
@@ -58,11 +56,9 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   //   name: new FormControl(''),
   // });
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private sanitizer: DomSanitizer, private dialog: MatDialog) {}
 
   ngOnInit(): void {
-    // this.formGroup.
-    // this.fb.
     this.curriculumObject.children.push(
       this.getNewCourseObject(this.curriculumObject, 'smit')
     );
@@ -101,28 +97,30 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     fileReader.onload = () => {
       try {
         this.curriculumObject = JSON.parse(fileReader.result as string);
-        this.idToParentSync(this.curriculumObject);
-        this.isJsonLoadSuccessfully = true;
+        this.idToParentSync(this.curriculumObject.children);
       } catch {
-        console.log('here In error');
-        this.errorMessageForJsonLoadFailed = 'invalid json';
-        this.isJsonLoadSuccessfully = false;
+        const dialogRef = this.dialog.open(DialogComponent);
       }
     };
   }
 
-  idToParentSync = (obj) => {
-    console.log('obj', obj);
-    for (const item of obj.children) {
-      item.id = uuid();
+  idToParentSync = (list) => {
+    console.log('obj', JSON.stringify(list, null, 3));
+    if (list === []) {
+      return;
+    }
+    for (const item of list) {
+      // item.id = uuid();
       this.idToParentMap[item.id] = item.children;
-      if (item.children !== []) {
+      if (item && item.children !== []) {
         this.idToParentSync(item.children);
       }
     }
     console.log(
       'LatestIdToParent',
-      JSON.stringify(this.idToParentMap, null, 2)
+      JSON.stringify(this.idToParentMap, null, 2),
+      '\n curriculumObject',
+      JSON.stringify(this.curriculumObject, null, 3)
     );
   };
 
@@ -152,14 +150,24 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   };
 
   handleIndent = (node): void => {
+    console.log(
+      'node first time ',
+      node,
+      '\n idToParent first time  ',
+      JSON.stringify(this.idToParentMap, null, 2),
+      '\n obj first time ',
+      JSON.stringify(this.curriculumObject, null, 3)
+    );
     const oldParent = this.idToParentMap[node.id];
+
     const tempCourseList = oldParent.children;
     console.log(
       'node',
       node,
       'idToParent',
       JSON.stringify(this.idToParentMap, null, 2),
-      'curriculumObject'
+      'curriculumObject',
+      JSON.stringify(this.curriculumObject, null, 3)
     );
 
     const courseIndex = tempCourseList.findIndex(
@@ -178,7 +186,15 @@ export class CurriculumAuthoringToolComponent implements OnInit {
 
     tempCourseList[courseIndex - 1].children.push(tempCourseList[courseIndex]);
     this.idToParentMap[node.id] = tempCourseList[courseIndex - 1];
+    console.log(
+      '---------id 3 rd, oldParent 3rd , courseIndex 3rd , tempParentList 3rd',
+      node.id,
+      oldParent,
+      courseIndex,
+      tempCourseList
+    );
     if (oldParent) {
+      console.log('in old parent' );
       oldParent.children = tempCourseList.filter(
         (singleCourse) => singleCourse.id !== node.id
       );
@@ -217,6 +233,12 @@ export class CurriculumAuthoringToolComponent implements OnInit {
       ];
       this.idToParentMap[node.id] = grandParent;
     }
+    console.log(
+      'curriculumObj',
+      JSON.stringify(this.curriculumObject, null, 3),
+      '\n idtoParent',
+      JSON.stringify(this.idToParentMap, null, 3)
+    );
   };
 
   handleDelete = (node: CurriculumObject) => {
