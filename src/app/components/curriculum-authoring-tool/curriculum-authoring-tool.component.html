@@ -1,9 +1,9 @@
 <div>
   <ng-template #templateRef let-node let-level="level">
     <div
-      class="input-root" >
+      class="input-root">
       <div class="input-wrapper" cdkDragBoundary=".root"
-        cdkDragLockAxis="y" >
+        cdkDragLockAxis="y">
         <div
           class="action-buttons-box">
           <div class="action-button-wrapper" matTooltip="Move"
@@ -51,12 +51,12 @@
     <div
       cdkDropList [cdkDropListData]="curriculumObject"
       (cdkDropListDropped)="drop($event)">
-    <div *ngFor="let item of parsedListWithLevel" cdkDrag>
-      <ng-template
-        [ngTemplateOutlet]="templateRef"
-        [ngTemplateOutletContext]="{$implicit: item[0], level:item[1] }">
-      </ng-template>
-    </div>
+      <div *ngFor="let item of parsedListWithLevel" cdkDrag>
+        <ng-template
+          [ngTemplateOutlet]="templateRef"
+          [ngTemplateOutletContext]="{$implicit: item[0], level:item[1] }">
+        </ng-template>
+      </div>
 
     </div>
   </div>
