@@ -1,12 +1,4 @@
 <div>
-  <!-- <div cdkDrag>
-      drag me around..
-    </div> -->
-  <!-- <div cdkDropList (cdkDropListDropped) = "drop($event)">
-      <div *ngFor="let fake of fakeList" cdkDrag>
-          {{fake}}
-      </div>
-    </div> -->
   <ng-template #templateRef let-node let-level="level">
     <div
       class="input-root" >
@@ -54,18 +46,6 @@
         </div>
       </div>
     </div>
-    <!-- <div *ngIf="node.children">
-
-
-      <div *ngFor="let item of node.children">
-        <ng-template
-          [ngTemplateOutlet]="templateRef"
-          [ngTemplateOutletContext]="{$implicit: item, level: level + 1 }">
-        </ng-template>
-
-      </div>
-  
-    </div> -->
   </ng-template>
   <div class="root">
     <div
@@ -92,8 +72,4 @@
       #fileInput>
     <button class="load-json-button" (click)="fileInput.click()">Load</button>
   </div>
-  <!-- <button (click)="onUpload()">Upload!</button> -->
-  <!-- <div *ngFor="let item of parsedListWithLevel" >
-    {{item | json}}
-  </div> -->
 </div>
