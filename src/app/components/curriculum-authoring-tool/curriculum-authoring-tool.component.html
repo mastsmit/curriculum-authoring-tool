@@ -18,8 +18,8 @@
             matTooltipPosition="above" matTooltipClass="move-tooltip"
             cdkDragHandle>
             <button class="action-button-style">
-              <fa-icon [icon]="faArrowsAltIcon" class="move action-button"
-                (click)="checking(node)"></fa-icon>
+              <fa-icon [icon]="faArrowsAltIcon" class="move action-button">
+              </fa-icon>
             </button>
           </div>
           <div class="action-button-wrapper" matTooltip="UnIndent"
@@ -85,10 +85,10 @@
   </app-button>
   <div class="load-and-save-button-wrapper">
     <a class="save-json-button" title="Download JSON" [href]="downloadJsonHref"
-      download="download.json" (click)="generateDownloadJsonUri()">Save</a>
+      download="download.json" (click)="handleOnSave()">Save</a>
     <input
       style="display: none"
-      type="file" (change)="onFileChanged($event)"
+      type="file" (change)="handleOnLoad($event)"
       #fileInput>
     <button class="load-json-button" (click)="fileInput.click()">Load</button>
   </div>
