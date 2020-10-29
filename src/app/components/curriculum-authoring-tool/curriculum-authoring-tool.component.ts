@@ -8,6 +8,7 @@ import {
   faArrowRight,
   faTrashAlt,
   faArrowsAlt,
+  faJoint,
 } from '@fortawesome/free-solid-svg-icons';
 import { v4 as uuid } from 'uuid';
 
@@ -39,7 +40,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   faArrowRightIcon = faArrowRight;
   faArrowTrashAltIcon = faTrashAlt;
   faArrowsAltIcon = faArrowsAlt;
-  parsedListWithLevel = []
+  parsedListWithLevel = [];
   buttonStyle = { cursor: 'pointer', margin: '20px 0 0 0' };
   fakeList = ['first', 'second', 'third', 'fourth'];
   styles = [
@@ -62,33 +63,100 @@ export class CurriculumAuthoringToolComponent implements OnInit {
 
   ngOnInit(): void {
     this.curriculumObject.children.push(
-      this.getNewCourseObject(this.curriculumObject, 'smit')
+      this.getNewCourseObject(this.curriculumObject, 'Numbers')
     );
     this.curriculumObject.children[0].children.push(
-      this.getNewCourseObject(this.curriculumObject.children[0], 'vaibhav')
+      this.getNewCourseObject(this.curriculumObject.children[0], 'Count to determine the number of objects in a set')
     );
     this.curriculumObject.children[0].children[0].children.push(
       this.getNewCourseObject(
         this.curriculumObject.children[0].children[0],
-        'bablu'
+        'describe observation about events and objects in real-life situations'
       )
     );
     this.curriculumObject.children.push(
-      this.getNewCourseObject(this.curriculumObject, 'aashka')
+      this.getNewCourseObject(this.curriculumObject, 'Measurement')
+    );
+    this.curriculumObject.children[1].children.push(
+      this.getNewCourseObject(this.curriculumObject.children[1], 'Measure the width of the line')
     );
     console.log(
       '-----id_vs_parent',
       JSON.stringify(this.idToParentMap, null, 3)
     );
     this.updateParsedListWithLevel();
+    // 1, 4, this.parsedListWithLevel, this.curriculumIbject, this.idVSMap
   }
+
+  changePosition = (event) => {
+    console.log(
+      'event',
+      event,
+      event.currentIndex,
+      event.previousIndex,
+      this.parsedListWithLevel,
+      'id To Paretn', JSON.stringify(this.idToParentMap, null, 3),
+      '\n', 'curriculumObject' , JSON.stringify(this.curriculumObject,null, 3),
+    );
+    let toNode = this.parsedListWithLevel[event.currentIndex];
+    let fromNode = this.parsedListWithLevel[event.previousIndex];
+    let toNodeParentId = this.idToParentMap[toNode[0].id];
+    let fromNodeParentId = this.idToParentMap[fromNode[0].id];
+
+    if(toNodeParentId) {
+      console.log('here');
+      this.curriculumObject.children = this.curriculumObject.children.filter(each => {
+        for(let child of each.children) {
+          if(child.id === toNode[0].id) {
+            each.children = each.children.filter(temp => temp.id !== child.id);
+          }
+        }
+        if(each.id === fromNode[0].id) {
+          console.log('smit patel');
+          each.children = [...each.children, ...toNode];
+        }
+        return each;
+      });
+      console.log('curriculumObject', JSON.stringify(this.curriculumObject, null , 3));
+    }
+
+
+    this.curriculumObject = { ...this.curriculumObject };
+
+
+    console.log('fromNode', fromNode, '\n', 'toNode', toNode, '\n', 'fromNodeParent', fromNodeParentId, '\n', 'toNodeParent', toNodeParentId);
+    this.swapPosition(this.curriculumObject.children, fromNode, toNode, fromNodeParentId, toNodeParentId);
+  }
+
+  swapPosition = (iteratorObj, fromNode, toNode, fromNodeParent, tempParent) => {
+    for(let child of iteratorObj) {
+      console.log('child', child);
+      if(child.id === fromNode[0].id) {
+        console.log('only 1 found');
+      }
+      this.swapPosition(child.children, fromNode, toNode, fromNodeParent, tempParent);
+    }
+  }
+
+  // dragAndDrop = (each, fromNode, temp, event) => {
+  //   event.currentIndex--;
+  //   event.previousIndex--;
+  //   console.log('event --', event);
+  //   for (const child of each.children) {
+  //     console.log(JSON.stringify(child, null, 3));
+  //     if(event.currentIndex === 0) {
+
+  //     }
+  //     this.dragAndDrop(child, fromNode, temp, event);
+  //   }
+  //   }
 
   generateDownloadJsonUri() {
     let theJSON = JSON.stringify(this.curriculumObject, null, 3);
     let blob = new Blob([theJSON], { type: 'text/json' });
-    console.log('blob', blob.text, 'blob', blob);
+    // console.log('blob', blob.text, 'blob', blob);
     let url = window.URL.createObjectURL(blob);
-    console.log('url', url);
+    // console.log('url', url);
     let uri = this.sanitizer.bypassSecurityTrustUrl(url);
     this.downloadJsonHref = uri;
   }
@@ -100,6 +168,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     fileReader.onload = () => {
       try {
         this.curriculumObject = JSON.parse(fileReader.result as string);
+        this.idToParentMap = {};
         this.idToParentSync(this.curriculumObject.children);
         this.updateParsedListWithLevel();
       } catch {
@@ -108,12 +177,22 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     };
   }
 
-  searchInNode = (node: CurriculumObject, key) => {
-    console.log('--------------', node.id, key)
+  idToParentSync = (list) => {
+    console.log('obj', JSON.stringify(list, null, 3));
+    for (const item of list) {
+      console.log('item', item, 'item.id', item.id)
+      this.idToParentMap[item.id] = item.children;
+      this.idToParentSync(item.children);
+    }
+    console.log('this.itemToIdParent', this.idToParentMap);
+  };
 
-    if(node.id === key) {
+  searchInNode = (node: CurriculumObject, key) => {
+    console.log('--------------', node.id, key);
+
+    if (node.id === key) {
       this.searchedParent = node;
-      console.log('--------------', node)
+      console.log('--------------', node);
       return true;
     }
     let child = null;
@@ -123,41 +202,24 @@ export class CurriculumAuthoringToolComponent implements OnInit {
       }
     }
     return false;
-  }
+  };
 
   getIdVsParentSubOptimal = (key): CurriculumObject => {
     this.searchedParent = null;
-    console.log('-------', this.curriculumObject, key)
-    this.searchInNode(this.curriculumObject, this.idToParentMap[key])
-    console.log('searchedNode-------', this.searchedParent)
-    return this.searchedParent
-  }
-
-  idToParentSync = (list) => {
-    console.log('obj', JSON.stringify(list, null, 3));
-    if (list === []) {
-      return;
-    }
-    for (const item of list) {
-      // item.id = uuid();
-      this.idToParentMap[item.id] = item.children;
-      if (item && item.children !== []) {
-        this.idToParentSync(item.children);
-      }
-    }
-    console.log(
-      'LatestIdToParent',
-      JSON.stringify(this.idToParentMap, null, 2),
-      '\n curriculumObject',
-      JSON.stringify(this.curriculumObject, null, 3)
-    );
+    console.log('-------', this.curriculumObject, key);
+    this.searchInNode(this.curriculumObject, this.idToParentMap[key]);
+    console.log('searchedNode-------', this.searchedParent);
+    return this.searchedParent;
   };
+
+ 
 
   checking = (node) => {
     console.log('clicked id', node);
   };
 
   drop = (e) => {
+    this.changePosition(e);
     // const temp = this.fakeList[e.currentIndex];
     // const temp1 = this.fakeList[e.previousIndex];
     // this.fakeList[e.currentIndex] = temp1;
@@ -187,7 +249,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
       '\n obj first time ',
       JSON.stringify(this.curriculumObject, null, 3)
     );
-    const oldParent = this.getIdVsParentSubOptimal(node.id)
+    const oldParent = this.getIdVsParentSubOptimal(node.id);
     // const oldParent = this.idToParentMap[node.id];
 
     const tempCourseList = oldParent.children;
@@ -224,7 +286,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
       tempCourseList
     );
     if (oldParent) {
-      console.log('in old parent' );
+      console.log('in old parent');
       oldParent.children = tempCourseList.filter(
         (singleCourse) => singleCourse.id !== node.id
       );
@@ -243,11 +305,11 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   handleUnIndent = (node) => {
     let tempList: [];
     let grandParent;
-    let oldParent = this.getIdVsParentSubOptimal(node.id)
+    let oldParent = this.getIdVsParentSubOptimal(node.id);
 
     // let oldParent = this.idToParentMap[node.id];
     if (oldParent) {
-      grandParent = this.getIdVsParentSubOptimal(oldParent.id)
+      grandParent = this.getIdVsParentSubOptimal(oldParent.id);
 
       // grandParent = this.idToParentMap[oldParent.id];
     }
@@ -270,33 +332,28 @@ export class CurriculumAuthoringToolComponent implements OnInit {
       this.curriculumObject = { ...this.curriculumObject };
       this.updateParsedListWithLevel();
     }
-    console.log(
-      'curriculumObj',
-      JSON.stringify(this.curriculumObject, null, 3),
-      '\n idtoParent',
-      JSON.stringify(this.idToParentMap, null, 3)
-    );
+   this.printToConsole();
   };
 
-    traverseNode = (node: CurriculumObject, level) => {
-      if(level !== -1) {
-        this.parsedListWithLevel.push([node, level]);
-      }
-    console.log('-=', this.parsedListWithLevel)
+  traverseNode = (node: CurriculumObject, level) => {
+    if (level !== -1) {
+      this.parsedListWithLevel.push([node, level]);
+    }
+    console.log('-=', this.parsedListWithLevel);
     let child = null;
     for (child of node.children) {
-      this.traverseNode(child, level + 1)
+      this.traverseNode(child, level + 1);
     }
-  }
-
+  };
 
   updateParsedListWithLevel = () => {
     this.parsedListWithLevel = [];
     this.traverseNode(this.curriculumObject, -1);
-    console.log('-=', this.parsedListWithLevel)
-  }
+    console.log('-=', this.parsedListWithLevel);
+  };
+
   handleDelete = (node: CurriculumObject) => {
-    let oldParent: CurriculumObject = this.getIdVsParentSubOptimal(node.id)
+    let oldParent: CurriculumObject = this.getIdVsParentSubOptimal(node.id);
 
     // let oldParent: CurriculumObject = this.idToParentMap[node.id];
     if (this.idToParentMap[node.id] === this.curriculumObject.id) {
@@ -314,8 +371,49 @@ export class CurriculumAuthoringToolComponent implements OnInit {
 
   addCourse = () => {
     const newCourse = this.getNewCourseObject();
-    this.curriculumObject.children.push(newCourse);
+    let lastEntry;
+    console.log(JSON.stringify(this.idToParentMap, null ,3 ));
+    lastEntry = this.parsedListWithLevel[this.parsedListWithLevel.length - 1];
+    console.log('lastEntyr', lastEntry);
+    let parentOfLastEntryId = this.idToParentMap[lastEntry[0].id];
+    if(parentOfLastEntryId === this.curriculumObject.id) {
+      this.curriculumObject.children.push(newCourse);
+    } 
+    console.log('parentOfLastEntryId', parentOfLastEntryId);
+    console.log('latest id to parent' , JSON.stringify(this.idToParentMap, null ,3 ));
+    this.insertNewCourseOnLevel(this.curriculumObject.children, parentOfLastEntryId, newCourse);
+    // console.log('parentOfLastEntry', parentOfLastEntryId);
+    // this.curriculumObject.children.push(newCourse);
     this.curriculumObject = { ...this.curriculumObject };
     this.updateParsedListWithLevel();
+    this.printToConsole();
   };
+
+  insertNewCourseOnLevel = (root, parentId, nodeToInsert) => {
+    let child = null;
+    console.log('nodeToInsert', nodeToInsert.id);
+    for(child of root) {
+      console.log('child', child.id, 'parent', parentId, '\n');
+      if(child.id === parentId) {
+        console.log('found only one');
+        child.children = [...child.children, nodeToInsert];
+        this.idToParentMap[nodeToInsert.id] = child.id;
+      }
+      if(child !== []) {
+        this.insertNewCourseOnLevel(child.children, parentId, nodeToInsert);
+      }
+    }
+    // console.log('curriculumObject', JSON.stringify(this.curriculumObject, null, 3));
+  }
+
+  printToConsole = () => {
+    console.log(
+      'curriculumObj',
+      JSON.stringify(this.curriculumObject, null, 3),
+      '\n idtoParent',
+      JSON.stringify(this.idToParentMap, null, 3),
+      'updateParsed',
+      JSON.stringify(this.insertNewCourseOnLevel, null, 3)
+    );
+  }
 }
