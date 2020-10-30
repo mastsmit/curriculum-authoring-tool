@@ -1,4 +1,4 @@
 <div role="button" [style]="buttonStyle" class="button-root" (click)="onClick()">
-  <div class="button-icon"><fa-icon [icon]="faPlusCircleIcon" ng></fa-icon></div>
+  <div class="button-icon" *ngIf="showIcon" ><fa-icon [icon]="faPlusCircleIcon" ng></fa-icon></div>
   <div>{{buttonName}}</div>
 </div>

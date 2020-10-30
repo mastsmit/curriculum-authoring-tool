@@ -1,5 +1,5 @@
 import { DialogComponent } from './../dialog/dialog.component';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
 import { v4 as uuid } from 'uuid';
@@ -36,17 +36,18 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   parsedListWithLevel = [];
   downloadJsonHref: SafeUrl;
   selectedFile: Blob;
-  buttonStyle = { cursor: 'pointer', margin: '20px 0 0 0' };
-  styles = [
-    'font-size: 20px; color:  rgb(28, 218, 243);font-weight: bold',
-    'font-size: 15px; color: black;font-weight: bold',
-    'font-size: 12px; color: green;',
-  ];
+  buttonStyle = {cursor: 'pointer', margin: '20px 0 0 0' };
   curriculumObject: CurriculumObject = {
     id: uuid(),
     name: 'curriculumRoot',
     children: [],
   };
+  @Input() inputStyles: string[] =  [
+    'font-size: 20px; color:  rgb(28, 218, 243);font-weight: bold',
+    'font-size: 15px; color: black;font-weight: bold',
+    'font-size: 12px; color: green;',
+  ];
+
 
   constructor(private sanitizer: DomSanitizer, private dialog: MatDialog) {}
 
@@ -68,12 +69,16 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   };
 
   addCourse = () => {
+    this.updateParsedListWithLevel();
     let lastEntry;
     const newCourse = this.getNewCourseObject();
     lastEntry = this.parsedListWithLevel[this.parsedListWithLevel.length - 1];
     let parentOfLastEntryId = this.curriculumObject.id;
     if (lastEntry) {
       parentOfLastEntryId = this.idToParentMap[lastEntry[0].id];
+      if (!lastEntry[0].name) {
+        return;
+      }
     }
     if (parentOfLastEntryId === this.curriculumObject.id || !lastEntry) {
       this.curriculumObject.children.push(newCourse);
@@ -146,7 +151,9 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     const fromNodeParent = this.getIdVsParentSubOptimal(
       fromNodeWithLevel[0].id
     );
-
+    if(toNodeWithLevel === fromNodeWithLevel) {
+      return;
+    }
     this.dragAndDrop(
       this.curriculumObject.children,
       toNodeWithLevel,
@@ -178,8 +185,6 @@ export class CurriculumAuthoringToolComponent implements OnInit {
         fromNodeParent.children = fromNodeParent.children.filter(
           (node) => node.id !== fromNode.id
         );
-
-       
         const remainingNodeIds = toNodeParent.children.slice(toNodeIndex);
         toNodeParent.children = toNodeParent.children
           .slice(0, toNodeIndex)
@@ -187,7 +192,6 @@ export class CurriculumAuthoringToolComponent implements OnInit {
           .concat(remainingNodeIds);
       } else {
         console.log('same  level case with different parent', toNodeParent);
-     
         const remainingNodeIds = toNodeParent.children.slice(toNodeIndex);
         toNodeParent.children = toNodeParent.children
           .slice(0, toNodeIndex)
@@ -197,18 +201,14 @@ export class CurriculumAuthoringToolComponent implements OnInit {
         fromNodeParent.children = fromNodeParent.children.filter(
           (node) => node.id !== fromNode.id
         );
-      }
-      
+      }    
       // console.log('to level larger', this.curriculumObject, toNode);
     } else if (toLevel - 1 === fromLevel) {
       console.log('to level larger', toNodeParent);
-      
       const remainingNodeIds = toNodeParent.children.slice(toNodeIndex);
       toNodeParent.children = toNodeParent.children.slice(0, toNodeIndex);
       fromNode.children = remainingNodeIds.concat(fromNode.children);
-      
       this.idToParentMap[toNode.id] = fromNode.id;
-   
       console.log(
         'to level larger',
         this.curriculumObject,
@@ -225,7 +225,6 @@ export class CurriculumAuthoringToolComponent implements OnInit {
           const beforeToNodeParent = this.getIdVsParentSubOptimal(
             beforeToNode.id
           );
-
           if (beforeToNodeLevel === fromLevel) {
             beforeToNodeParent.children = beforeToNodeParent.children.concat([
               fromNode,
@@ -233,9 +232,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
             fromNodeParent.children = fromNodeParent.children.filter(
               (node) => node.id !== fromNode.id
             );
-        
             this.idToParentMap[fromNode.id] = beforeToNodeParent.id;
-         
             console.log(
               beforeToNode,
               this.idToParentMap,
@@ -251,9 +248,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
             fromNodeParent.children = fromNodeParent.children.filter(
               (node) => node.id !== fromNode.id
             );
-         
             this.idToParentMap[fromNode.id] = beforeToNode.id;
-        
             console.log(
               beforeToNode,
               this.idToParentMap,

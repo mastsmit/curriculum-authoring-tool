@@ -39,7 +39,7 @@
         <div class="input-text-wrapper">
           <input
             type="text"
-            [style]="styles[level]"
+            [style]="inputStyles[level]"
             class="input-text"
             [(ngModel)]="node.name"
             [style.padding-left]="level * 35 + 'px'">
@@ -47,25 +47,28 @@
       </div>
     </div>
   </ng-template>
-  <div class="root">
+  <div class="root-wrapper">
     <div
+      class="root"
       cdkDropList [cdkDropListData]="curriculumObject"
       (cdkDropListDropped)="drop($event)">
       <div *ngFor="let item of parsedListWithLevel" cdkDrag>
         <ng-template
           [ngTemplateOutlet]="templateRef"
-          [ngTemplateOutletContext]="{$implicit: item[0], level:item[1] }">
+          [ngTemplateOutletContext]="{$implicit: item[0], level:item[1]}">
         </ng-template>
       </div>
 
     </div>
   </div>
-  <app-button buttonName= 'Add course' [buttonStyle]= buttonStyle [onClick]=
-    addCourse>
-  </app-button>
+    <app-button buttonName= 'Add course' [buttonStyle]= buttonStyle [onClick]=
+      addCourse>
+    </app-button>
   <div class="load-and-save-button-wrapper">
-    <a class="save-json-button" title="Download JSON" [href]="downloadJsonHref"
-      download="download.json" (click)="handleOnSave()">Save</a>
+    <button class="save-json-button-wrapper">
+      <a class="save-json-button" title="Download JSON"
+        [href]="downloadJsonHref"
+        download="download.json" (click)="handleOnSave()">Save</a></button>
     <input
       style="display: none"
       type="file" (change)="handleOnLoad($event)"
