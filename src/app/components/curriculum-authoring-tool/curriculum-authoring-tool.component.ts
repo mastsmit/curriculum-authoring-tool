@@ -27,19 +27,18 @@ type IdToParentMap = {
   styleUrls: ['./curriculum-authoring-tool.component.scss'],
 })
 export class CurriculumAuthoringToolComponent implements OnInit {
-  searchedParent = null;
   idToParentMap: IdToParentMap = {};
   faArrowLeftIcon = faArrowLeft;
   faArrowRightIcon = faArrowRight;
   faArrowTrashAltIcon = faTrashAlt;
   faArrowsAltIcon = faArrowsAlt;
+  searchedParent = null;
   parsedListWithLevel = [];
   downloadJsonHref: SafeUrl;
-  selectedFile: Blob;
   buttonStyle = {cursor: 'pointer', margin: '20px 0 0 0' };
   curriculumObject: CurriculumObject = {
     id: uuid(),
-    name: 'curriculumRoot',
+    name: 'curriculum-authoring-tool',
     children: [],
   };
   @Input() inputStyles: string[] =  [
@@ -110,12 +109,13 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     const url = window.URL.createObjectURL(blob);
     const uri = this.sanitizer.bypassSecurityTrustUrl(url);
     this.downloadJsonHref = uri;
+    console.log('thid.fsdf', this.downloadJsonHref);
   }
 
   handleOnLoad(event): void {
-    this.selectedFile = event.target.files[0];
+    const selectedFile = event.target.files[0];
     const fileReader = new FileReader();
-    fileReader.readAsText(this.selectedFile, 'UTF-8');
+    fileReader.readAsText(selectedFile, 'UTF-8');
     fileReader.onload = () => {
       try {
         this.curriculumObject = JSON.parse(fileReader.result as string);

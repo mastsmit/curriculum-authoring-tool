@@ -68,7 +68,7 @@
     <button class="save-json-button-wrapper">
       <a class="save-json-button" title="Download JSON"
         [href]="downloadJsonHref"
-        download="download.json" (click)="handleOnSave()">Save</a></button>
+        [download]="curriculumObject.name" (click)="handleOnSave()">Save</a></button>
     <input
       style="display: none"
       type="file" (change)="handleOnLoad($event)"
