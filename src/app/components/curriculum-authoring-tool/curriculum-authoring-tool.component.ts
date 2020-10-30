@@ -34,6 +34,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   faArrowsAltIcon = faArrowsAlt;
   searchedParent = null;
   parsedListWithLevel = [];
+  isLoading = false;
   downloadJsonHref: SafeUrl;
   buttonStyle = {cursor: 'pointer', margin: '20px 0 0 0' };
   curriculumObject: CurriculumObject = {
@@ -67,8 +68,8 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   };
 
   addCourse = () => {
-    this.updateParsedListWithLevel();
     let lastEntry;
+    this.updateParsedListWithLevel();
     const newCourse = this.getNewCourseObject();
     lastEntry = this.parsedListWithLevel[this.parsedListWithLevel.length - 1];
     let parentOfLastEntryId = this.curriculumObject.id;
@@ -109,23 +110,30 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     const url = window.URL.createObjectURL(blob);
     const uri = this.sanitizer.bypassSecurityTrustUrl(url);
     this.downloadJsonHref = uri;
-    console.log('thid.fsdf', this.downloadJsonHref);
   }
 
   handleOnLoad(event): void {
-    const selectedFile = event.target.files[0];
-    const fileReader = new FileReader();
-    fileReader.readAsText(selectedFile, 'UTF-8');
-    fileReader.onload = () => {
+    this.isLoading = true;
+    let selectedFile = null;
+    try {
+      selectedFile = event.target.files[0];
+      const fileReader = new FileReader();
+      fileReader.readAsText(selectedFile, 'UTF-8');
+      fileReader.onload = () => {
       try {
         this.curriculumObject = JSON.parse(fileReader.result as string);
         this.idToParentMap = {};
         this.idToParentSyncOnLoadFile(this.curriculumObject);
         this.updateParsedListWithLevel();
       } catch {
+        this.isLoading = false;
         const dialogRef = this.dialog.open(DialogComponent);
       }
     };
+    } catch {
+      this.isLoading = false;
+    }
+    this.isLoading = false;
   }
 
   idToParentSyncOnLoadFile = (node) => {

@@ -10,6 +10,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 import { ButtonComponent } from './components/button/button.component';
 
@@ -29,6 +30,7 @@ import { ButtonComponent } from './components/button/button.component';
     MatButtonModule,
     DragDropModule,
     FormsModule,
+    MatProgressSpinnerModule,
     BrowserAnimationsModule,
   ],
   providers: [],

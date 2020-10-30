@@ -47,7 +47,7 @@
       </div>
     </div>
   </ng-template>
-  <div class="root-wrapper">
+  <div class="root-wrapper" *ngIf="!isLoading;else loaderTemplate">
     <div
       class="root"
       cdkDropList [cdkDropListData]="curriculumObject"
@@ -61,14 +61,14 @@
 
     </div>
   </div>
-    <app-button buttonName= 'Add course' [buttonStyle]= buttonStyle [onClick]=
-      addCourse>
-    </app-button>
+  <app-button buttonName= 'Add course' [buttonStyle]= buttonStyle [onClick]=
+    addCourse>
+  </app-button>
   <div class="load-and-save-button-wrapper">
     <button class="save-json-button-wrapper">
       <a class="save-json-button" title="Download JSON"
         [href]="downloadJsonHref"
-        [download]="curriculumObject.name" (click)="handleOnSave()">Save</a></button>
+        download="curriculum-authoring-tool-data" (click)="handleOnSave()">Save</a></button>
     <input
       style="display: none"
       type="file" (change)="handleOnLoad($event)"
@@ -76,3 +76,12 @@
     <button class="load-json-button" (click)="fileInput.click()">Load</button>
   </div>
 </div>
+
+<ng-template #loaderTemplate>
+  <div class="loader-wrapper">
+    <mat-progress-spinner
+      class="example-margin"
+      mode="indeterminate"
+      diameter="40">
+    </mat-progress-spinner></div>
+</ng-template>

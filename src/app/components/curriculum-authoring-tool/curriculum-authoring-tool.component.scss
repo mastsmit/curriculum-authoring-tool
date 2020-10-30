@@ -67,6 +67,12 @@
   color: black;
   text-decoration: none;
 }
+
+.loader-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 .load-json-button,
 .save-json-button-wrapper {
   cursor: pointer;
