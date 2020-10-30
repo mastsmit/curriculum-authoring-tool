@@ -20,6 +20,10 @@ type IdToParentMap = {
   [key: string]: string | null;
 };
 
+type ParsedWithLevel = [
+  CurriculumObject , number
+];
+
 @Component({
   selector: 'app-curriculum-authoring-tool',
   templateUrl: './curriculum-authoring-tool.component.html',
@@ -32,7 +36,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   faArrowTrashAltIcon = faTrashAlt;
   faArrowsAltIcon = faArrowsAlt;
   searchedParent = null;
-  parsedListWithLevel = [];
+  parsedListWithLevel: ParsedWithLevel[] = [];
   isLoading = false;
   downloadJsonHref: SafeUrl;
   buttonStyle = { cursor: 'pointer', margin: '20px 0 0 0' };
@@ -65,7 +69,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   }
 
   addCourse = () => {
-    let lastEntry;
+    let lastEntry: ParsedWithLevel;
     this.updateParsedListWithLevel();
     const newCourse = this.getNewCourseObject();
     lastEntry = this.parsedListWithLevel[this.parsedListWithLevel.length - 1];
@@ -88,7 +92,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     this.updateParsedListWithLevel();
   }
 
-  insertNewCourseOnLevel = (root, parentId, nodeToInsert) => {
+  insertNewCourseOnLevel = (root: CurriculumObject[], parentId: string, nodeToInsert: CurriculumObject): void => {
     let child = null;
     for (child of root) {
       if (child.id === parentId) {
@@ -109,11 +113,11 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     this.downloadJsonHref = uri;
   }
 
-  handleOnLoad(event): void {
+  handleOnLoad(event: Event): void {
     this.isLoading = true;
     let selectedFile = null;
     try {
-      selectedFile = event.target.files[0];
+      selectedFile = (event.target as HTMLInputElement).files[0];
       const fileReader = new FileReader();
       fileReader.readAsText(selectedFile, 'UTF-8');
       fileReader.onload = () => {
@@ -133,7 +137,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     this.isLoading = false;
   }
 
-  idToParentSyncOnLoadFile = (node) => {
+  idToParentSyncOnLoadFile = (node: CurriculumObject) => {
     if (!node.children) {
       return;
     }
@@ -145,7 +149,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
   }
 
-  drop = (event) => {
+  drop = (event: any) => {
     const toNodeWithLevel = this.parsedListWithLevel[event.currentIndex];
     const fromNodeWithLevel = this.parsedListWithLevel[event.previousIndex];
     const toNodeParent = this.getIdVsParentSubOptimal(toNodeWithLevel[0].id);
@@ -166,10 +170,10 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   }
 
   dragAndDrop = (
-    toNodeWithLevel,
-    fromNodeWithLevel,
-    toNodeParent,
-    fromNodeParent,
+    toNodeWithLevel: ParsedWithLevel,
+    fromNodeWithLevel: ParsedWithLevel,
+    toNodeParent: CurriculumObject,
+    fromNodeParent: CurriculumObject,
     currentIndex: number
   ) => {
     const [toNode, toLevel] = toNodeWithLevel;
@@ -206,10 +210,10 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   }
 
   handleToAndFromNodeAreEqualLevel = (
-    toNodeParent,
-    fromNodeParent,
-    toNodeIndex,
-    fromNode
+    toNodeParent: CurriculumObject,
+    fromNodeParent: CurriculumObject,
+    toNodeIndex: number,
+    fromNode: CurriculumObject,
   ) => {
     if (toNodeParent.id === fromNodeParent.id) {
       fromNodeParent.children = fromNodeParent.children.filter(
@@ -234,10 +238,10 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   }
 
   handleToLevelIsLessThanFromLevel = (
-    toNodeParent,
-    toNodeIndex,
-    toNode,
-    fromNode
+    toNodeParent: CurriculumObject,
+    toNodeIndex: number,
+    toNode: CurriculumObject,
+    fromNode: CurriculumObject
   ) => {
     const remainingNodeIds = toNodeParent.children.slice(toNodeIndex);
     toNodeParent.children = toNodeParent.children.slice(0, toNodeIndex);
@@ -246,11 +250,11 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   }
 
   handleToLevelIsGreaterThanFromLevel = (
-    fromNode,
-    fromLevel,
-    fromNodeParent,
-    currentIndex
-  ) => {
+    fromNode: CurriculumObject,
+    fromLevel: number,
+    fromNodeParent: CurriculumObject,
+    currentIndex: number
+  ): void => {
     if (currentIndex - 1 >= 0) {
       const beforeToNode = this.parsedListWithLevel[currentIndex - 1][0];
       const beforeToNodeLevel = this.parsedListWithLevel[currentIndex - 1][1];
@@ -273,7 +277,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
   }
 
-  handleUnIndent = (node: CurriculumObject) => {
+  handleUnIndent = (node: CurriculumObject): void => {
     let grandParent: CurriculumObject;
     const oldParent = this.getIdVsParentSubOptimal(node.id);
     if (oldParent) {
@@ -299,7 +303,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
   }
 
-  handleIndent = (node): void => {
+  handleIndent = (node: CurriculumObject): void => {
     const oldParent = this.getIdVsParentSubOptimal(node.id);
     const tempCourseList = oldParent.children;
     const courseIndex = tempCourseList.findIndex(
@@ -319,7 +323,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
   }
 
-  handleDelete = (node: CurriculumObject) => {
+  handleDelete = (node: CurriculumObject): void => {
     let oldParent: CurriculumObject = this.getIdVsParentSubOptimal(node.id);
     if (this.idToParentMap[node.id] === this.curriculumObject.id) {
       oldParent = this.curriculumObject;
@@ -334,7 +338,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
   }
 
-  searchInNode = (node: CurriculumObject, key: string) => {
+  searchInNode = (node: CurriculumObject, key: string): boolean => {
     if (node.id === key) {
       this.searchedParent = node;
       return true;
@@ -354,7 +358,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     return this.searchedParent;
   }
 
-  traverseNode = (node: CurriculumObject, level) => {
+  traverseNode = (node: CurriculumObject, level: number): void => {
     if (level !== -1) {
       this.parsedListWithLevel.push([node, level]);
     }
@@ -364,7 +368,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
   }
 
-  updateParsedListWithLevel = () => {
+  updateParsedListWithLevel = (): void => {
     this.parsedListWithLevel = [];
     this.traverseNode(this.curriculumObject, -1);
   }
