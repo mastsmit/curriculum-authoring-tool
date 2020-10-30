@@ -145,6 +145,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
   };
 
   drop = (event) => {
+    console.log('event', event);
     const toNodeWithLevel = this.parsedListWithLevel[event.currentIndex];
     const fromNodeWithLevel = this.parsedListWithLevel[event.previousIndex];
     const toNodeParent = this.getIdVsParentSubOptimal(toNodeWithLevel[0].id);
@@ -178,7 +179,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     const toNodeIndex = toNodeParent.children.findIndex(
       (node) => node.id === toNode.id
     );
-    console.log('================', toLevel, fromLevel);
+    console.log('================', toLevel, fromLevel, toNodeIndex);
     if (toLevel === fromLevel) {
       if (toNodeParent.id === fromNodeParent.id) {
         console.log('same  level case with same parent', toNodeParent);
@@ -329,7 +330,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     }
   };
 
-  searchInNode = (node: CurriculumObject, key) => {
+  searchInNode = (node: CurriculumObject, key: string) => {
     if (node.id === key) {
       this.searchedParent = node;
       return true;
@@ -343,7 +344,7 @@ export class CurriculumAuthoringToolComponent implements OnInit {
     return false;
   };
 
-  getIdVsParentSubOptimal = (key): CurriculumObject => {
+  getIdVsParentSubOptimal = (key: string): CurriculumObject => {
     this.searchedParent = null;
     console.log('-------', this.curriculumObject, key);
     this.searchInNode(this.curriculumObject, this.idToParentMap[key]);
